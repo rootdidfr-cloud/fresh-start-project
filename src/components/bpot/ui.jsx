@@ -1,0 +1,13 @@
+import React from 'react';
+import { Bitcoin, ArrowUpRight, X } from 'lucide-react';
+export function Btc({className=''}) { return <span className={`btc-icon ${className}`}><Bitcoin size={12} strokeWidth={2.5}/></span>; }
+export function Avatar({name, color='#b5a0ed', size='', initials}) { return <span className={`avatar ${size}`} style={{'--avatar-color':color}}><span>{initials || name?.[0]?.toUpperCase() || 'B'}</span><i/><b/></span>; }
+export function Logo({small=false}) { return <div className={`brand ${small ? 'small' : ''}`}><span className="brand-symbol"><Bitcoin strokeWidth={2.7}/></span><span>bpot<span className="brand-period">.</span></span></div>; }
+export function SectionHeader({icon:Icon, title, subtitle, children}) { return <div className="section-heading"><div className="section-title"><span className="section-icon"><Icon size={22}/></span><div><h2>{title}</h2>{subtitle && <p>{subtitle}</p>}</div></div><div className="section-actions">{children}</div></div>; }
+export function Tag({children, green=false}) { return <span className={`tag ${green ? 'green' : ''}`}><i/>{children}</span>; }
+export function Modal({title, eyebrow, close, children, wide=false}) {
+  const ref = React.useRef(null);
+  React.useEffect(() => { const old = document.activeElement; const overflow = document.body.style.overflow; document.body.style.overflow='hidden'; ref.current?.focus(); function handle(e) { if (e.key === 'Escape') close(); if (e.key === 'Tab') { const list = ref.current?.querySelectorAll('button:not(:disabled), input, select, a[href], [tabindex="0"]'); if (!list?.length) return; const first=list[0], last=list[list.length-1]; if(e.shiftKey && (document.activeElement===first || document.activeElement===ref.current)) {e.preventDefault(); last.focus();} else if (!e.shiftKey && document.activeElement===last) {e.preventDefault(); first.focus();} } } document.addEventListener('keydown',handle); return () => {document.body.style.overflow=overflow; document.removeEventListener('keydown',handle); old?.focus();}; }, []);
+  return <div className="modal-backdrop" onMouseDown={e => e.target===e.currentTarget && close()}><section ref={ref} tabIndex={-1} className={`modal ${wide ? 'wide' : ''}`} role="dialog" aria-modal="true" aria-labelledby="modal-title"><button className="icon-button close-modal" onClick={close} aria-label="Close dialog"><X size={20}/></button>{eyebrow && <div className="eyebrow gold">{eyebrow}</div>}<h2 id="modal-title">{title}</h2>{children}</section></div>;
+}
+export function Coin({side='heads', animate=false}) {return <div className={`physical-coin ${side} ${animate ? 'flipping' : ''}`}><div className="coin-face">{side==='heads' ? <Bitcoin size={58} strokeWidth={1.8}/> : <span>B</span>}</div></div>;}

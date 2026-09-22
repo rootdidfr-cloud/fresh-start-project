@@ -1,24 +1,38 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { ClientOnly, createFileRoute } from "@tanstack/react-router";
 
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
+import BpotApp from "../components/bpot/App";
+import bpotCss from "../components/bpot/styles.css?url";
+import dialogCss from "../components/bpot/dialogs.css?url";
+import responsiveCss from "../components/bpot/responsive.css?url";
+
 export const Route = createFileRoute("/")({
-  component: Index,
+  head: () => ({
+    links: [
+      { rel: "stylesheet", href: bpotCss },
+      { rel: "stylesheet", href: dialogCss },
+      { rel: "stylesheet", href: responsiveCss },
+    ],
+  }),
+  component: BpotPage,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
-function Index() {
+function BpotPage() {
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
-    </div>
+    <ClientOnly fallback={<PlaygroundLoading />}>
+      <BpotApp />
+    </ClientOnly>
+  );
+}
+
+function PlaygroundLoading() {
+  return (
+    <main className="bpot-loading" aria-busy="true" aria-label="Loading Bpot">
+      <div className="bpot-loading-brand">
+        bpot<span>.</span>
+      </div>
+      <h1>The Bitcoin playground.</h1>
+      <p role="status">Loading jackpots and coinflips…</p>
+      <noscript>Enable JavaScript to play the Bpot demo.</noscript>
+    </main>
   );
 }
