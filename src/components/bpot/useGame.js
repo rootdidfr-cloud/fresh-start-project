@@ -13,6 +13,8 @@ export function useGame() {
   const [rotation, setRotation] = useState(0);
   const [flips, setFlips] = useState(FLIPS);
   const [activeFlip, setActiveFlip] = useState(null);
+  const [wallet, setWallet] = useState(() => readStorage('bpot-wallet', ''));
+  const [address, setAddress] = useState(() => readStorage('bpot-address', ''));
   const [toast, setToast] = useState(null);
   const [sound, setSound] = useState(false);
   const timers = useRef([]);
@@ -34,7 +36,8 @@ export function useGame() {
     try { const AudioCtx = window.AudioContext || window.webkitAudioContext; const ctx = new AudioCtx(); const osc = ctx.createOscillator(); const gain = ctx.createGain(); osc.connect(gain); gain.connect(ctx.destination); osc.frequency.setValueAtTime(win ? 660 : 220, ctx.currentTime); osc.frequency.exponentialRampToValueAtTime(win ? 990 : 150, ctx.currentTime + 0.18); gain.gain.setValueAtTime(0.06, ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4); osc.start(); osc.stop(ctx.currentTime + 0.4); osc.onended = () => ctx.close(); } catch {}
   }
   function addHistory(item) { setHistory(h => [{...item, time: new Date().toISOString()}, ...h].slice(0, 30)); }
-  function connect() { setConnected(true); notify('Demo wallet connected. Your Bitcoin playground is ready.'); }
+  function connect(name = 'Demo wallet', addr = null) { setConnected(true); setWallet(name); setAddress(addr || ''); localStorage.setItem('bpot-wallet', JSON.stringify(name)); localStorage.setItem('bpot-address', JSON.stringify(addr || '')); notify(addr ? `${name} connected · ${addr.slice(0,6)}…${addr.slice(-4)}` : `${name} connected. Your Bitcoin playground is ready.`); }
+  function disconnect() { setConnected(false); setWallet(''); setAddress(''); localStorage.setItem('bpot-wallet', JSON.stringify('')); localStorage.setItem('bpot-address', JSON.stringify('')); notify('Wallet disconnected.', 'info'); }
   function validate(amount) {
     if (!connected) { notify('Connect a demo wallet to start playing.', 'error'); return false; }
     if (!Number.isFinite(amount) || amount < 0.0001) { notify('Enter at least 0.0001 BTC.', 'error'); return false; }
@@ -97,5 +100,5 @@ export function useGame() {
     return true;
   }
   function fund() { if (!connected) connect(); setBalance(b => b + 0.1); notify('0.1000 demo BTC added to your wallet.'); }
-  return {connected, balance, history, players, seconds, round, roundState, winner, rotation, total, myBet, flips, activeFlip, setActiveFlip, toast, setToast, sound, setSound, notify, connect, joinPot, playFlip, fund, setBalance};
+  return {connected, wallet, address, disconnect, balance, history, players, seconds, round, roundState, winner, rotation, total, myBet, flips, activeFlip, setActiveFlip, toast, setToast, sound, setSound, notify, connect, joinPot, playFlip, fund, setBalance};
 }
